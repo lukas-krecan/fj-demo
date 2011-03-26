@@ -57,7 +57,7 @@ public class VisualForkJoinMergeSort
 	private static final Color COLOR_SCHEDULED = new Color(134,219,52);
 	private static final Color COLOR_FINISHED = Color.GRAY;
 
-	private static final Color[] threadColors = new Color[]{Color.YELLOW, new Color(76,160,255), Color.CYAN, Color.MAGENTA, Color.GREEN, Color.PINK, Color.ORANGE, Color.WHITE};
+	private static final Color[] THREAD_COLORS = new Color[]{Color.YELLOW, new Color(76,160,255), Color.CYAN, Color.MAGENTA, Color.GREEN, Color.PINK, Color.ORANGE, Color.WHITE};
 
 	private JPanel panel; 
 	
@@ -130,7 +130,7 @@ public class VisualForkJoinMergeSort
 	}
 	public void start()
 	{
-		JFrame frame = new JFrame();
+		JFrame frame = new JFrame("Visualisation of merge sort using fork join");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(1024,640);
 		
@@ -145,8 +145,8 @@ public class VisualForkJoinMergeSort
 		panel1.add(newLabel("Waiting in queue", COLOR_SCHEDULED));
 		panel1.add(newLabel("Waiting for subtasks", COLOR_WAIT));
 		panel1.add(newLabel("Finished", COLOR_FINISHED));
-		for (int i = 0; i < threadColors.length; i++) {
-			panel1.add(newLabel("Thread "+(i+1), threadColors[i]));
+		for (int i = 0; i < THREAD_COLORS.length; i++) {
+			panel1.add(newLabel("Thread "+(i+1), THREAD_COLORS[i]));
 		}
 		vbox.add(panel1);
 		
@@ -271,7 +271,7 @@ public class VisualForkJoinMergeSort
 	 */
 	private static Color threadColor() {
 		
-		return threadColors[threadNo() % threadColors.length];
+		return THREAD_COLORS[(threadNo() - 1) % THREAD_COLORS.length];
 	}
 
 	private static int threadNo() {
