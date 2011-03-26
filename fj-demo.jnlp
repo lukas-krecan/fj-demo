@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp
+  spec="1.0+"
+  codebase="http://javacrumbs.net/fj-demo/"
+  href="fj-demo.jnlp">
+  <information>
+    <title>Fork/Join demo</title>
+    <vendor>Lukáš Křečan</vendor>
+    <description>Demonstrates beahaviour of Fork/Join framework.</description>
+    <description kind="short">Fork/Join demo</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.5+"/>
+    <jar href="fj-demo-1.0-SNAPSHOT.jar"/>
+    <jar href="jsr166y-0.4.40-SNAPSHOT.jar"/>
+  </resources>
+  <application-desc main-class="net.javacrumbs.fjdemo.VisualForkJoinMergeSort"/>
+</jnlp> 
