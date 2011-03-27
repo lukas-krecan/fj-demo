@@ -57,7 +57,7 @@ public class VisualForkJoinMergeSort
 	private static final Color COLOR_SCHEDULED = new Color(134,219,52);
 	private static final Color COLOR_FINISHED = Color.GRAY;
 
-	private static final Color[] THREAD_COLORS = new Color[]{Color.YELLOW, new Color(76,160,255), Color.CYAN, Color.MAGENTA, Color.GREEN, Color.PINK, Color.ORANGE, Color.WHITE};
+	private static final Color[] THREAD_COLORS = new Color[]{Color.YELLOW, new Color(76,160,255), Color.CYAN, Color.MAGENTA, Color.RED, Color.PINK, Color.ORANGE, Color.WHITE};
 
 	private JPanel panel; 
 	
