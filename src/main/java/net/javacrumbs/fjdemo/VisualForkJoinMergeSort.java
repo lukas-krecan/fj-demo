@@ -138,7 +138,7 @@ public class VisualForkJoinMergeSort
 		Box vbox = Box.createVerticalBox();
 		
 		Box hbox1 = Box.createHorizontalBox();
-		hbox1.add(new JLabel("<html><ol><li>Thread takes a task from the queue. If the tasks is too big (longer than two elements) it is split to two smaller tasks</li><li>Subtasks are placed to queue to be processed</li> <li>While the task waits for its subtasks to finish the thread goes to 1.</li> <li>When the subtasks are finished their results are merged.</li> </ol> </html>"));
+		hbox1.add(new JLabel("<html><ol><li>Thread takes a task from the queue. If the tasks is too big (longer than two elements in our case) it is split to two smaller tasks</li><li>The subtasks are placed to the queue to be processed</li> <li>While the task waits for its subtasks to finish the thread is free to take another task from the queue (step 1.)</li> <li>When the subtasks are finished their results are merged</li> </ol> </html>"));
 		vbox.add(hbox1);
 		
 		JPanel panel1 = new JPanel();
