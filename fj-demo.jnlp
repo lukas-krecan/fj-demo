@@ -11,9 +11,13 @@
     <offline-allowed/>
   </information>
   <resources>
-    <j2se version="1.5+"/>
+    <j2se version="1.6+"/>
     <jar href="fj-demo-1.0-SNAPSHOT.jar"/>
-    <jar href="jsr166y-0.4.40-SNAPSHOT.jar"/>
+    <jar href="jsr166y.jar"/>
   </resources>
   <application-desc main-class="net.javacrumbs.fjdemo.VisualForkJoinMergeSort"/>
+   <security>
+     <all-permissions/>
+  </security>
+  
 </jnlp> 
