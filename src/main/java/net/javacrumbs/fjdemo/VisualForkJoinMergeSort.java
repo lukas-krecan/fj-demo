@@ -56,6 +56,8 @@ public class VisualForkJoinMergeSort
 	private static final Color COLOR_WAIT = new Color(212,146,52);
 	private static final Color COLOR_SCHEDULED = new Color(134,219,52);
 	private static final Color COLOR_FINISHED = Color.GRAY;
+	
+	private final Random random = new Random();
 
 	private static final Color[] THREAD_COLORS = new Color[]{Color.YELLOW, new Color(76,160,255), Color.CYAN, Color.MAGENTA, Color.RED, Color.PINK, Color.ORANGE, Color.WHITE};
 
@@ -69,7 +71,9 @@ public class VisualForkJoinMergeSort
 	
 	private JButton startButton; 
 	
-	private JCheckBox randomCheckBox;
+	private JCheckBox randomCheckBox = new JCheckBox("Random data",false);;
+	
+	private JCheckBox randomDelayCheckBox = new JCheckBox("Random speed",false);;
 	
 	
 	private JSlider createSlider(int min, int max, int value, final String message)
@@ -88,8 +92,22 @@ public class VisualForkJoinMergeSort
 		return result;
 	}
 	
-	public void init()
+	
+	private JLabel newLabel(String text, Color color)
 	{
+		JLabel result = new JLabel(text);
+		result.setBackground(color);
+		result.setOpaque(true);
+		result.setBorder(BorderFactory.createEmptyBorder(3,3,3,3));
+		return result;
+	}
+	public void start()
+	{
+		JFrame frame = new JFrame("Visualisation of merge sort using fork join");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(1024,640);
+		
+		frame.setLayout(new BorderLayout());
 		
 		panel = new JPanel();
 		panel.setLayout(null);
@@ -117,28 +135,11 @@ public class VisualForkJoinMergeSort
 			}
 		});
 		
-		randomCheckBox = new JCheckBox("Random data",false);
-	}
-	
-	private JLabel newLabel(String text, Color color)
-	{
-		JLabel result = new JLabel(text);
-		result.setBackground(color);
-		result.setOpaque(true);
-		result.setBorder(BorderFactory.createEmptyBorder(3,3,3,3));
-		return result;
-	}
-	public void start()
-	{
-		JFrame frame = new JFrame("Visualisation of merge sort using fork join");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(1024,640);
 		
-		frame.setLayout(new BorderLayout());
 		Box vbox = Box.createVerticalBox();
 		
 		Box hbox1 = Box.createHorizontalBox();
-		hbox1.add(new JLabel("<html><ol><li>Thread takes a task from the queue. If the tasks is too big (longer than two elements in our case) it is split to two smaller tasks</li><li>The subtasks are placed to the queue to be processed</li> <li>While the task waits for its subtasks to finish the thread is free to take another task from the queue (step 1.)</li> <li>When the subtasks are finished their results are merged</li> </ol> </html>"));
+		hbox1.add(new JLabel("<html><ol><li>Thread takes a task from the queue. If the tasks is too big (longer than two elements in our case) it is split to two smaller tasks</li><li>The subtasks are placed to the queue to be processed</li> <li>While the task waits for its subtasks to finish, the thread is free to take another task from the queue (step 1.)</li> <li>When the subtasks are finished their results are merged</li> </ol> </html>"));
 		vbox.add(hbox1);
 		
 		JPanel panel1 = new JPanel();
@@ -160,6 +161,7 @@ public class VisualForkJoinMergeSort
 		Box hbox3 = Box.createHorizontalBox();
 		hbox3.add(startButton);
 		hbox3.add(randomCheckBox);
+		hbox3.add(randomDelayCheckBox);
 		vbox.add(hbox3);
 		
 		
@@ -213,7 +215,14 @@ public class VisualForkJoinMergeSort
 		try {
 			SwingUtilities.invokeAndWait(r);
 			panel.repaint();
-			Thread.sleep(1000-speed.getValue());
+			if (randomDelayCheckBox.isSelected())
+			{
+				Thread.sleep(Math.max(0, 1000-(int)(speed.getValue()*random.nextFloat()*2)));
+			}
+			else
+			{
+				Thread.sleep(1000-speed.getValue());
+			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} 
@@ -304,11 +313,11 @@ public class VisualForkJoinMergeSort
 	private void runDemo() {
 		ForkJoinPool threadPool = new ForkJoinPool(numThreads.getValue());
 		int[] numbers = new int[problemSize.getValue()];
-		Random r = new Random();
+
 		for (int i = 0; i < numbers.length; i++) {
 			if (randomCheckBox.isSelected())
 			{
-				numbers[i]=r.nextInt(100);
+				numbers[i]=random.nextInt(100);
 			}
 			else
 			{
@@ -379,7 +388,6 @@ public class VisualForkJoinMergeSort
 	public static void  main(String[] args)
 	{
 		VisualForkJoinMergeSort demo = new VisualForkJoinMergeSort();
-		demo.init();
 		demo.start();
 	}
 }
