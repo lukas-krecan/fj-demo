@@ -217,7 +217,7 @@ public class VisualForkJoinMergeSort
 			panel.repaint();
 			if (randomDelayCheckBox.isSelected())
 			{
-				Thread.sleep(Math.max(0, 1000-(int)(speed.getValue()*random.nextFloat()*2)));
+				Thread.sleep((long)((1000-speed.getValue())*(random.nextFloat()+0.5)));
 			}
 			else
 			{
