@@ -16,7 +16,7 @@
   </resources>
   <application-desc main-class="net.javacrumbs.fjdemo.VisualForkJoinMergeSort"/>
    <security>
-     <all-permissions/>
+       <j2ee-application-client-permissions/>
   </security>
 
 </jnlp>
