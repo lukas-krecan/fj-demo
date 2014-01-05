@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <jnlp
   spec="1.0+"
-  codebase="http://javacrumbs.net/fj-demo/"
+  codebase="https://github.com/lukas-krecan/fj-demo/raw/master/dist"
   href="fj-demo.jnlp">
   <information>
     <title>Fork/Join demo</title>
@@ -11,13 +11,12 @@
     <offline-allowed/>
   </information>
   <resources>
-    <j2se version="1.6+"/>
+    <j2se version="1.7+"/>
     <jar href="fj-demo-1.0-SNAPSHOT.jar"/>
-    <jar href="jsr166y.jar"/>
   </resources>
   <application-desc main-class="net.javacrumbs.fjdemo.VisualForkJoinMergeSort"/>
    <security>
      <all-permissions/>
   </security>
-  
-</jnlp> 
+
+</jnlp>

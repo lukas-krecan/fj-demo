@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -38,9 +40,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import jsr166y.ForkJoinPool;
-import jsr166y.RecursiveAction;
 
 /**
  * Shows use of the ForkJoin mechanics to implement merge sort.
@@ -208,7 +207,7 @@ public class VisualForkJoinMergeSort
 
 	/**
 	 * Runs closure in Swing Event thread and repaints the panel. Sleeps after the change.
-	 * @param closure
+	 * @param r
 	 * @return
 	 */
 	private void threadSafe(Runnable r) {
