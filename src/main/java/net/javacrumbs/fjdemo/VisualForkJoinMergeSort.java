@@ -15,9 +15,11 @@ package net.javacrumbs.fjdemo;
 //limitations under the License.
 
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
@@ -26,20 +28,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.SwingUtilities;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 /**
  * Shows use of the ForkJoin mechanics to implement merge sort.
@@ -70,9 +58,9 @@ public class VisualForkJoinMergeSort
 	
 	private JButton startButton; 
 	
-	private JCheckBox randomCheckBox = new JCheckBox("Random data",false);;
+	private JCheckBox randomCheckBox = new JCheckBox("Random data",false);
 	
-	private JCheckBox randomDelayCheckBox = new JCheckBox("Random speed",false);;
+	private JCheckBox randomDelayCheckBox = new JCheckBox("Random speed",false);
 	
 	
 	private JSlider createSlider(int min, int max, int value, final String message)
@@ -103,7 +91,7 @@ public class VisualForkJoinMergeSort
 	public void start()
 	{
 		JFrame frame = new JFrame("Visualisation of merge sort using fork join");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setSize(1024,640);
 		
 		frame.setLayout(new BorderLayout());
@@ -169,33 +157,12 @@ public class VisualForkJoinMergeSort
 		frame.setVisible(true);
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
-	/**
-	 * Creates label that visualizes the task
-	 * @param row
-	 * @param col
-	 * @param nums
-	 * @return
-	 */
-	private JLabel createLabel(int row, int col, int[] nums) {
-		final JLabel label = new JLabel(" "+Arrays.toString(nums));
-		label.setBounds(col*COL_WIDTH,row*ROW_HEIGHT+20,nums.length*COL_WIDTH,ROW_HEIGHT);
-		label.setBackground(COLOR_SCHEDULED);
-		label.setOpaque(true);
-		label.setToolTipText(Arrays.toString(nums));
-		label.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		threadSafe(new Runnable() {
-			public void run() {
-				panel.add(label);
-			}
-		});
-		return label;
-	}
+
 
 	/**
 	 * Sets color of the label
 	 * @param label
 	 * @param color
-	 * @return
 	 */
 	private  void setLabelColor(final JLabel label, final Color color) {
 		threadSafe(new Runnable() {
@@ -208,7 +175,6 @@ public class VisualForkJoinMergeSort
 	/**
 	 * Runs closure in Swing Event thread and repaints the panel. Sleeps after the change.
 	 * @param r
-	 * @return
 	 */
 	private void threadSafe(Runnable r) {
 		try {
@@ -233,7 +199,7 @@ public class VisualForkJoinMergeSort
 	private Map<Integer, int[]> split(int[] list) {
 		int listSize = list.length;
 		int middleIndex = listSize / 2;
-		Map<Integer, int[]> result = new HashMap<Integer, int[]>();
+		Map<Integer, int[]> result = new HashMap<>();
 		result.put(0, Arrays.copyOf(list, middleIndex));
 		result.put(1, Arrays.copyOfRange(list, middleIndex, list.length));
 		return result;
@@ -284,30 +250,12 @@ public class VisualForkJoinMergeSort
 
 	private static int threadNo() {
 		String name = Thread.currentThread().getName();
-		return Integer.valueOf(name.charAt(name.length()-1));
+		return name.charAt(name.length()-1);
 	}
 
 
-	/**
-	 * Finishes the task
-	 * @param label
-	 * @param result
-	 * @return
-	 */
-	private int[] finishTask(final JLabel label, final int[] result) {
-		threadSafe(new Runnable() {
-			public void run() {
-				label.setText(Arrays.toString(result));
-				label.setBackground(COLOR_FINISHED);
-		}});
-		return result;
-	}
-	
-
-	
 	/**
 	 * Executes the demo.
-	 * @return
 	 */
 	private void runDemo() {
 		ForkJoinPool threadPool = new ForkJoinPool(numThreads.getValue());
@@ -323,7 +271,7 @@ public class VisualForkJoinMergeSort
 				numbers[i]=problemSize.getValue()-i;
 			}
 		}
-		threadPool.invoke(new SortTask(numbers, 0, 0, createLabel(0, 0, numbers)));
+		threadPool.invoke(new SortTask(numbers, 0, 0));
 		
 		threadSafe(new Runnable() {
 			public void run() {
@@ -345,11 +293,11 @@ public class VisualForkJoinMergeSort
 		private final int col;
 		private final JLabel label;
 		
-		public SortTask(int[] numbers, int row, int col, JLabel label) {
+		public SortTask(int[] numbers, int row, int col) {
 			this.numbers = numbers;
 			this.row = row;
 			this.col = col;
-			this.label = label;
+			this.label = createLabel();
 		}
 		
 		@Override
@@ -358,7 +306,7 @@ public class VisualForkJoinMergeSort
 			setLabelColor(label, threadColor());
 			switch (numbers.length) {
 			case 1:
-				finishTask(label, numbers);
+				finishTask();
 				return;
 			case 2:
 				if (numbers[0]>numbers[1])
@@ -367,20 +315,49 @@ public class VisualForkJoinMergeSort
 					numbers[0] = numbers[1];
 					numbers[1] = tmp;
 				}
-				finishTask(label, numbers);
+				finishTask();
 				return;
 			default:
 				Map<Integer, int[]> split = split(numbers);
 				int[] a = split.get(0);
 				int[] b = split.get(1);
-				JLabel label1 = createLabel(row+1, col, a);
-				JLabel label2 = createLabel(row+1, col + a.length, b);
 				setLabelColor(label, COLOR_WAIT);
-				invokeAll(new SortTask(a, row+1, col, label1), new SortTask(b, row+1, col + a.length, label2));
+				invokeAll(new SortTask(a, row+1, col), new SortTask(b, row+1, col + a.length));
 				merge(label, a, b, numbers);
-				finishTask(label, numbers);
+				finishTask();
 			}
 		}
+
+        /**
+       	 * Finishes the task
+       	 * @return
+       	 */
+       	private void finishTask() {
+       		threadSafe(new Runnable() {
+       			public void run() {
+       				label.setText(Arrays.toString(numbers));
+       				label.setBackground(COLOR_FINISHED);
+       		}});
+       	}
+
+        /**
+       	 * Creates label that visualizes the task
+       	 * @return
+       	 */
+       	private JLabel createLabel() {
+       		final JLabel label = new JLabel(" "+Arrays.toString(numbers));
+       		label.setBounds(col*COL_WIDTH,row*ROW_HEIGHT+20,numbers.length*COL_WIDTH,ROW_HEIGHT);
+       		label.setBackground(COLOR_SCHEDULED);
+       		label.setOpaque(true);
+       		label.setToolTipText(Arrays.toString(numbers));
+       		label.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+       		threadSafe(new Runnable() {
+       			public void run() {
+       				panel.add(label);
+       			}
+       		});
+       		return label;
+       	}
 		
 	}
 	
