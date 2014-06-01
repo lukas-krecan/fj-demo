@@ -32,6 +32,9 @@
                         <manifest>
                             <mainClass>net.javacrumbs.fjdemo.VisualForkJoinMergeSort</mainClass>
                         </manifest>
+                        <manifestEntries>
+                            <Permissions>all-permissions</Permissions>
+                        </manifestEntries>
                     </archive>
                     <outputDirectory>${basedir}/dist</outputDirectory>
                 </configuration>
