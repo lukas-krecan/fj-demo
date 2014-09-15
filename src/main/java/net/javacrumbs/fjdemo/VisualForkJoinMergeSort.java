@@ -46,7 +46,16 @@ public class VisualForkJoinMergeSort
 	
 	private final Random random = new Random();
 
-	private static final Color[] THREAD_COLORS = new Color[]{Color.YELLOW, new Color(76,160,255), Color.CYAN, Color.MAGENTA, Color.RED, Color.PINK, Color.ORANGE, Color.WHITE};
+    private static final Color[] THREAD_COLORS = new Color[]{
+            Color.YELLOW,
+            Color.CYAN,
+            Color.RED,
+            Color.WHITE,
+            Color.PINK,
+            Color.ORANGE,
+            Color.MAGENTA,
+            new Color(76, 160, 255)
+    };
 
 	private JPanel panel; 
 	
@@ -165,10 +174,12 @@ public class VisualForkJoinMergeSort
 	 * @param color
 	 */
 	private  void setLabelColor(final JLabel label, final Color color) {
-		threadSafe(new Runnable() {
+        final Color threadColor = threadColor();
+        threadSafe(new Runnable() {
 			public void run() {
 				label.setBackground(color);
-			}
+                label.setForeground(threadColor);
+            }
 		});
 	}
 
@@ -322,8 +333,8 @@ public class VisualForkJoinMergeSort
 				int[] a = split.get(0);
 				int[] b = split.get(1);
 				setLabelColor(label, COLOR_WAIT);
-				invokeAll(new SortTask(a, row+1, col), new SortTask(b, row+1, col + a.length));
-				merge(label, a, b, numbers);
+                invokeAll(new SortTask(a, row + 1, col), new SortTask(b, row + 1, col + a.length));
+                merge(label, a, b, numbers);
 				finishTask();
 			}
 		}
@@ -351,12 +362,13 @@ public class VisualForkJoinMergeSort
        		label.setOpaque(true);
        		label.setToolTipText(Arrays.toString(numbers));
        		label.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-       		threadSafe(new Runnable() {
-       			public void run() {
-       				panel.add(label);
-       			}
-       		});
-       		return label;
+            label.setForeground(threadColor());
+            threadSafe(new Runnable() {
+                public void run() {
+                    panel.add(label);
+                }
+            });
+            return label;
        	}
 		
 	}
