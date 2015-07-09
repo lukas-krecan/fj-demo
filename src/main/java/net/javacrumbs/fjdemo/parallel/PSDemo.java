@@ -20,7 +20,6 @@ import java.awt.*;
 import java.util.Comparator;
 import java.util.Spliterator;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -82,7 +81,7 @@ public class PSDemo {
     }
 
     private void runCalculation() {
-        Stream<Integer> stream = StreamSupport.stream(new SwingLoggingSpliteratorWrapper<>(range(0, 1000).spliterator(), taskIdGenerator.getAndIncrement(), null), true);
+        Stream<Integer> stream = StreamSupport.stream(new SwingLoggingSpliteratorWrapper<>(range(0, 1000).spliterator(), taskIdGenerator.getAndIncrement(), 0, null), true);
 
         stream.parallel().collect(maxBy(Comparator.<Integer>naturalOrder()));
     }
@@ -91,13 +90,13 @@ public class PSDemo {
 
         public static final String FJ_THREAD_NAME_PREFIX = "ForkJoinPool.commonPool-worker-";
 
-        public SwingLoggingSpliteratorWrapper(Spliterator<T> wrapped, int taskId, Task parentTask) {
-            super(wrapped, taskId, parentTask);
+        public SwingLoggingSpliteratorWrapper(Spliterator<T> wrapped, int taskId, int from, Task parentTask) {
+            super(wrapped, taskId, from, parentTask);
         }
 
         @Override
-        protected LoggingSpliteratorWrapper<T> createNewInstance(Spliterator<T> spliterator, int taskId) {
-            return new SwingLoggingSpliteratorWrapper<>(spliterator, taskId, this);
+        protected LoggingSpliteratorWrapper<T> createNewInstance(Spliterator<T> spliterator, int taskId, int from) {
+            return new SwingLoggingSpliteratorWrapper<>(spliterator, taskId, from, this);
         }
 
         @Override
@@ -111,6 +110,7 @@ public class PSDemo {
                 threadSafe(() -> currentThreadBox.removeTask(this));
             }
             if (STOLEN.equals(message)) {
+                threadSafe(() -> currentThreadBox.addTask(this));
                 ThreadBox originalThreadBox = getThreadBox(getOwnerThread());
                 threadSafe(() -> originalThreadBox.removeTask(this));
             }

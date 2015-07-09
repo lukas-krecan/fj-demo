@@ -1,9 +1,11 @@
 package net.javacrumbs.fjdemo.parallel;
 
 public interface Task {
-    int getSize();
+    int getWidth();
 
-    String getSubtaskId();
+    int getStart();
+
+    String getIdentifier();
 
     int getTaskId();
 }

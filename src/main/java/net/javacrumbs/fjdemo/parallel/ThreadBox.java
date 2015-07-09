@@ -24,7 +24,7 @@ public class ThreadBox extends JPanel {
     private static final Color[] TASK_COLORS = new Color[]{
             Color.BLACK,
             Color.RED,
-            Color.ORANGE,
+            Color.BLUE,
             Color.MAGENTA,
     };
 
@@ -72,7 +72,7 @@ public class ThreadBox extends JPanel {
                 Task task = tasks[i];
                 if (task != null) {
                     g.setColor(TASK_COLORS[task.getTaskId() % TASK_COLORS.length]);
-                    g.drawRect(0, HEIGHT - (i + 1) * TASK_HEIGHT, task.getSize(), TASK_HEIGHT);
+                    g.drawRect(task.getStart(), HEIGHT - (i + 1) * TASK_HEIGHT, task.getWidth(), TASK_HEIGHT);
                 }
             }
         }

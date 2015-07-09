@@ -17,7 +17,6 @@ package net.javacrumbs.fjdemo.parallel;
 
 import java.util.Comparator;
 import java.util.Spliterator;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import static java.lang.Thread.currentThread;
@@ -28,19 +27,20 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
     public static final String FOR_EACH_REMAINING = "forEachRemaining";
     public static final String STOLEN = "stolen";
     public static final String SPLIT = "split";
+    public static final int SCALE = 10;
     private final Spliterator<T> wrapped;
-    private static final AtomicInteger idGenerator = new AtomicInteger();
     private final int taskId;
-    private final int subtaskId;
+    private final int from;
+
     private final Task parentTask;
     private Thread ownerThread;
 
-    public LoggingSpliteratorWrapper(Spliterator<T> wrapped, int taskId, Task parentTask) {
+    public LoggingSpliteratorWrapper(Spliterator<T> wrapped, int taskId, int from, Task parentTask) {
         this.taskId = taskId;
         this.parentTask = parentTask;
         this.wrapped = requireNonNull(wrapped);
-        this.subtaskId = idGenerator.getAndIncrement();
         this.ownerThread = currentThread();
+        this.from = from;
         logAndSleep(CREATED);
     }
 
@@ -58,11 +58,11 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
     @Override
     public Spliterator<T> trySplit() {
         log(SPLIT);
-        return createNewInstance(wrapped.trySplit(), taskId);
+        return createNewInstance(wrapped.trySplit(), taskId, from + (int) estimateSize());
     }
 
-    protected LoggingSpliteratorWrapper<T> createNewInstance(Spliterator<T> spliterator, int taskId) {
-        return new LoggingSpliteratorWrapper<>(spliterator, taskId, this);
+    protected LoggingSpliteratorWrapper<T> createNewInstance(Spliterator<T> spliterator, int taskId, int from) {
+        return new LoggingSpliteratorWrapper<>(spliterator, taskId, from, this);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
     }
 
     protected void log(String message) {
-        System.out.println(getThreadName() + " " + getSubtaskId() + " " + (parentTask != null ? parentTask.getSubtaskId() : "x") + " " + wrapped.estimateSize() + " " + message);
+        System.out.println(getThreadName() + " " + getIdentifier() + " " + (parentTask != null ? parentTask.getIdentifier() : "x") + " " + wrapped.estimateSize() + " " + message);
     }
 
     protected String getThreadName() {
@@ -99,20 +99,20 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
 
     private void sleep() {
         try {
-            Thread.sleep(1000L);
+            Thread.sleep(500L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public int getSize() {
-        return (int) (wrapped.estimateSize() / 5);
+    public int getWidth() {
+        return (int) (wrapped.estimateSize() / SCALE);
     }
 
     @Override
-    public String getSubtaskId() {
-        return taskId + ":" + subtaskId;
+    public String getIdentifier() {
+        return taskId + "[" + from + ".." + (from + estimateSize()) + "]";
     }
 
     @Override
@@ -126,5 +126,10 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
 
     public Thread getOwnerThread() {
         return ownerThread;
+    }
+
+    @Override
+    public int getStart() {
+        return from / SCALE;
     }
 }
