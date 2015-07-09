@@ -15,29 +15,23 @@
  */
 package net.javacrumbs.fjdemo.parallel;
 
+import java.util.Comparator;
 import java.util.Spliterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.maxBy;
 import static java.util.stream.IntStream.range;
 
 public class ParallelStreamsDemo {
-    static {
-        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "4");
-    }
-
-
     public static void main(String[] args) {
         Stream<Integer> stream = StreamSupport.stream(wrapSpliterator(range(0, 1000).spliterator()), true);
 
-        stream.parallel().collect(toList());
+        stream.parallel().collect(maxBy(Comparator.<Integer>naturalOrder()));
     }
 
     private static <T> Spliterator<T> wrapSpliterator(Spliterator<T> spliterator) {
-        return new LoggingSpliteratorWrapper<>(spliterator,
-                (thread, taskId, subtaskId, size, message) -> System.out.println(thread + " " + taskId + " " + subtaskId + " " + + size + " " +  message),
-                0);
+        return new LoggingSpliteratorWrapper<>(spliterator, 0, null);
     }
 
 

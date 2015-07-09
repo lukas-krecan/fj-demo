@@ -22,17 +22,17 @@ import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;
 
-public class LoggingSpliteratorWrapper<T> implements Spliterator<T> {
+public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
     private final Spliterator<T> wrapped;
     private static final AtomicInteger idGenerator = new AtomicInteger();
     private final int taskId;
     private final int subtaskId;
-    private final LogHandler logHandler;
+    private final Task parentTask;
 
-    public LoggingSpliteratorWrapper(Spliterator<T> wrapped, LogHandler logHandler, int taskId) {
+    public LoggingSpliteratorWrapper(Spliterator<T> wrapped, int taskId, Task parentTask) {
         this.taskId = taskId;
+        this.parentTask = parentTask;
         this.wrapped = requireNonNull(wrapped);
-        this.logHandler = requireNonNull(logHandler);
         this.subtaskId = idGenerator.getAndIncrement();
         log("created");
     }
@@ -50,9 +50,11 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T> {
 
     @Override
     public Spliterator<T> trySplit() {
-        LoggingSpliteratorWrapper<T> newSpliterator = new LoggingSpliteratorWrapper<>(wrapped.trySplit(), logHandler, taskId);
-        log("split");
-        return newSpliterator;
+        return createNewInstance(wrapped.trySplit(), taskId);
+    }
+
+    protected LoggingSpliteratorWrapper<T> createNewInstance(Spliterator<T> spliterator, int taskId) {
+        return new LoggingSpliteratorWrapper<>(spliterator, taskId, this);
     }
 
     @Override
@@ -71,10 +73,28 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T> {
     }
 
     private void log(String message) {
-        logHandler.handleLog(Thread.currentThread().getName(), taskId, subtaskId, wrapped.estimateSize(), message);
+        doLog(message);
+        sleep();
     }
 
-    public interface LogHandler {
-        void handleLog(String thread, int taskId, int subtaskId, long size, String message);
+    protected void doLog(String message) {
+        System.out.println(getThreadName() + " " + taskId + " " + subtaskId + " " + wrapped.estimateSize() + " " + message);
+    }
+
+    protected String getThreadName() {
+        return Thread.currentThread().getName();
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(100L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public int getSize() {
+        return (int) (wrapped.estimateSize() / 10);
     }
 }
