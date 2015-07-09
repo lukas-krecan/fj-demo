@@ -18,6 +18,8 @@ package net.javacrumbs.fjdemo.parallel;
 import javax.swing.*;
 import java.awt.*;
 
+import static java.util.Arrays.stream;
+
 public class ThreadBox extends JPanel {
     private static final int MAX_TASKS = 30;
     private final ThreadCanvas threadCanvas;
@@ -33,7 +35,17 @@ public class ThreadBox extends JPanel {
 
     public void addTask(Task task) {
         tasks[currentTask++] = task;
-        threadCanvas.repaint();
+    }
+
+    public void removeTask(Task task) {
+        for (int i = 0; i < MAX_TASKS; i++) {
+            if (task == tasks[i]) {
+                tasks[i] = null;
+            }
+        }
+        if (stream(tasks).allMatch(t -> t == null)) {
+            currentTask = 0;
+        }
     }
 
     private class ThreadCanvas extends JPanel {
@@ -51,7 +63,7 @@ public class ThreadBox extends JPanel {
             for (int i = 0; i < MAX_TASKS; i++) {
                 Task task = tasks[i];
                 if (task != null) {
-                    g.drawRect(0, HEIGHT - (i + 1) * TASK_HEIGHT, WIDTH, TASK_HEIGHT);
+                    g.drawRect(0, HEIGHT - (i + 1) * TASK_HEIGHT, task.getSize(), TASK_HEIGHT);
                 }
             }
         }

@@ -17,8 +17,12 @@ package net.javacrumbs.fjdemo.parallel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Comparator;
 import java.util.Spliterator;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -33,6 +37,8 @@ public class PSDemo {
     }
 
     private final ThreadBox[] fjThreadBoxes = new ThreadBox[THREADS];
+    private final JPanel panel = new JPanel();
+    private final Executor executor = Executors.newFixedThreadPool(4);
 
     private void start() {
         JFrame frame = new JFrame("Visualisation of parallel stream processing");
@@ -40,9 +46,7 @@ public class PSDemo {
         frame.setSize(1024, 640);
         frame.setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
-        frame.add(panel, BorderLayout.CENTER);
 
         for (int i = 0; i < THREADS; i++) {
             ThreadBox tb = new ThreadBox();
@@ -50,8 +54,22 @@ public class PSDemo {
             fjThreadBoxes[i] = tb;
         }
 
-        frame.setVisible(true);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BorderLayout());
 
+        JButton startButton = new JButton("Start");
+        startButton.addActionListener(e -> {
+            executor.execute(this::runCalculation);
+        });
+        buttonPanel.add(startButton);
+
+        frame.add(panel, BorderLayout.CENTER);
+        frame.add(buttonPanel, BorderLayout.SOUTH);
+
+        frame.setVisible(true);
+    }
+
+    private void runCalculation() {
         Stream<Integer> stream = StreamSupport.stream(new SwingLoggingSpliteratorWrapper<>(range(0, 1000).spliterator(), 0, null), true);
 
         stream.parallel().collect(maxBy(Comparator.<Integer>naturalOrder()));
@@ -71,20 +89,32 @@ public class PSDemo {
         }
 
         @Override
-        protected void doLog(String message) {
-            super.doLog(message);
-            if (isFJThread()) {
-                int threadNo = getThreadNo();
-                threadSafe(() -> fjThreadBoxes[threadNo].addTask(this));
+        protected void log(String message) {
+            super.log(message);
+            String threadName = getThreadName();
+
+            if (isFJThread(threadName)) {
+                int threadNo = getThreadNo(threadName);
+                if (CREATED.equals(message)) {
+                    threadSafe(() -> fjThreadBoxes[threadNo].addTask(this));
+                }
+                if (FOR_EACH_REMAINING.equals(message)) {
+                    threadSafe(() -> fjThreadBoxes[threadNo].removeTask(this));
+                }
+                if (STOLEN.equals(message)) {
+                    String ownerThreadName = getOwnerThread().getName();
+                    if (isFJThread(ownerThreadName)) {
+                        threadSafe(() -> fjThreadBoxes[getThreadNo(ownerThreadName)].removeTask(this));
+                    }
+                }
             }
         }
 
-        private boolean isFJThread() {
-            return getThreadName().startsWith(FJ_THREAD_NAME_PREFIX);
+        private boolean isFJThread(String threadName) {
+            return threadName.startsWith(FJ_THREAD_NAME_PREFIX);
         }
 
-        public int getThreadNo() {
-            String threadName = getThreadName();
+        public int getThreadNo(String threadName) {
             return Integer.parseInt(threadName.substring(threadName.lastIndexOf('-') + 1));
         }
     }
@@ -97,6 +127,7 @@ public class PSDemo {
     private void threadSafe(Runnable r) {
         try {
             SwingUtilities.invokeAndWait(r);
+            panel.repaint();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
