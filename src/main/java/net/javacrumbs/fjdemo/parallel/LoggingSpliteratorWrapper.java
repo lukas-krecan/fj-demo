@@ -90,7 +90,7 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
     }
 
     protected void log(String message) {
-        System.out.println(getThreadName() + " " + getId() + " " + (parentTask != null ? parentTask.getId() : "x") + " " + wrapped.estimateSize() + " " + message);
+        System.out.println(getThreadName() + " " + getSubtaskId() + " " + (parentTask != null ? parentTask.getSubtaskId() : "x") + " " + wrapped.estimateSize() + " " + message);
     }
 
     protected String getThreadName() {
@@ -99,7 +99,7 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
 
     private void sleep() {
         try {
-            Thread.sleep(100L);
+            Thread.sleep(1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -107,12 +107,17 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
 
     @Override
     public int getSize() {
-        return (int) (wrapped.estimateSize() / 10);
+        return (int) (wrapped.estimateSize() / 5);
     }
 
     @Override
-    public String getId() {
+    public String getSubtaskId() {
         return taskId + ":" + subtaskId;
+    }
+
+    @Override
+    public int getTaskId() {
+        return taskId;
     }
 
     public Task getParentTask() {

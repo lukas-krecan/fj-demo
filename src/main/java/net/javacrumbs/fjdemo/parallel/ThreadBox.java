@@ -21,16 +21,23 @@ import java.awt.*;
 import static java.util.Arrays.stream;
 
 public class ThreadBox extends JPanel {
+    private static final Color[] TASK_COLORS = new Color[]{
+            Color.BLACK,
+            Color.RED,
+            Color.ORANGE,
+            Color.MAGENTA,
+    };
+
     private static final int MAX_TASKS = 30;
     private final ThreadCanvas threadCanvas;
     private int currentTask = 0;
     private Task[] tasks = new Task[MAX_TASKS];
 
-    public ThreadBox() {
+    public ThreadBox(String name) {
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createLineBorder(Color.black));
         threadCanvas = new ThreadCanvas();
         add(threadCanvas, BorderLayout.CENTER);
+        add(new JLabel(name), BorderLayout.SOUTH);
     }
 
     public void addTask(Task task) {
@@ -54,6 +61,7 @@ public class ThreadBox extends JPanel {
         private static final int TASK_HEIGHT = 10;
 
         public ThreadCanvas() {
+            setBorder(BorderFactory.createLineBorder(Color.black));
             setPreferredSize(new Dimension(WIDTH, HEIGHT));
         }
 
@@ -63,6 +71,7 @@ public class ThreadBox extends JPanel {
             for (int i = 0; i < MAX_TASKS; i++) {
                 Task task = tasks[i];
                 if (task != null) {
+                    g.setColor(TASK_COLORS[task.getTaskId() % TASK_COLORS.length]);
                     g.drawRect(0, HEIGHT - (i + 1) * TASK_HEIGHT, task.getSize(), TASK_HEIGHT);
                 }
             }
