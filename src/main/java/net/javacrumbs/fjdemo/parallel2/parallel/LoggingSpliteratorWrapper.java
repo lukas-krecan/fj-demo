@@ -102,7 +102,7 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
 
     private void sleep() {
         try {
-            Thread.sleep(500L);
+            Thread.sleep(1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -138,6 +138,7 @@ public class PSDemo {
                     int j = i;
                     List<Task> tasks = getTasks(ws[i]);
                     threadSafe(() -> queueBoxes[j].setTasks(tasks));
+                    System.out.println("Queue content: " + i + " " + tasks);
                 }
             }
         }

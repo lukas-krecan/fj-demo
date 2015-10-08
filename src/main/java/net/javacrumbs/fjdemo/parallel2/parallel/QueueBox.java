@@ -17,52 +17,59 @@ package net.javacrumbs.fjdemo.parallel2.parallel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-import static java.util.Arrays.stream;
+import static java.util.stream.IntStream.range;
 
 public class QueueBox extends JPanel {
     static final Color[] TASK_COLORS = new Color[]{
-            Color.BLACK,
-            Color.RED,
-            Color.BLUE,
-            Color.MAGENTA,
+        Color.BLACK,
+        Color.RED,
+        Color.BLUE,
+        Color.MAGENTA,
     };
 
-    private final QueueCanvas queueCanvas;
-    private List<Task> tasks = Collections.emptyList();
+    private final QueuePanel queuePanel;
 
     public QueueBox() {
         setLayout(new BorderLayout());
-        queueCanvas = new QueueCanvas();
-        add(queueCanvas, BorderLayout.CENTER);
+        queuePanel = new QueuePanel();
+        add(queuePanel, BorderLayout.CENTER);
     }
 
     public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
+        queuePanel.setTasks(tasks);
     }
 
 
-    private class QueueCanvas extends JPanel {
+    private class QueuePanel extends JPanel {
         private static final int WIDTH = 100;
         private static final int HEIGHT = 300;
-        private static final int TASK_HEIGHT = 10;
+        private final List<JLabel> workLabels;
 
-        public QueueCanvas() {
+        public QueuePanel() {
             setBorder(BorderFactory.createLineBorder(Color.black));
             setPreferredSize(new Dimension(WIDTH, HEIGHT));
+            setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+            workLabels = new LinkedList<>();
+            range(0, 10).forEach(i -> {
+                JLabel workLabel = new JLabel();
+                workLabels.add(0,workLabel);
+                add(workLabel);
+            });
         }
 
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            for (int i = 0; i < tasks.size(); i++) {
-                Task task = tasks.get(i);
-                if (task != null) {
-                    g.setColor(TASK_COLORS[task.getTaskId() % TASK_COLORS.length]);
-                    //g.drawRect(task.getStart(), tasks.size() * TASK_HEIGHT - (i + 1) * TASK_HEIGHT, task.getWidth(), TASK_HEIGHT);
-                    g.drawString(task.getStart() + "-" + (task.getStart() + task.getWidth()),  task.getStart(), tasks.size() * TASK_HEIGHT - (i + 1) * TASK_HEIGHT);
+        public void setTasks(List<Task> tasks) {
+            for (int i = 0; i < workLabels.size(); i++) {
+                JLabel workLabel = workLabels.get(i);
+                if (tasks.size() > i) {
+                    Task task = tasks.get(i);
+                    workLabel.setText(task.getStart() + "-" + (task.getStart() + task.getWidth()));
+                    workLabel.setForeground(TASK_COLORS[task.getTaskId() % TASK_COLORS.length]);
+                } else {
+                    workLabel.setText("");
                 }
             }
         }

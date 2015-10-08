@@ -21,7 +21,7 @@ import java.awt.*;
 import static net.javacrumbs.fjdemo.parallel2.parallel.QueueBox.TASK_COLORS;
 
 public class ThreadBox extends JPanel {
-    private final WorkCanvas workCanvas;
+    private final JLabel work;
     private final JLabel label;
     private Task task;
     private static final int COLUMN_WIDTH = 100;
@@ -29,37 +29,23 @@ public class ThreadBox extends JPanel {
 
     public ThreadBox() {
         setLayout(new FlowLayout(FlowLayout.CENTER));
-        workCanvas = new WorkCanvas();
-        workCanvas.setPreferredSize(new Dimension(COLUMN_WIDTH, TASK_HEIGHT));
+        work = new JLabel();
         label = new JLabel();
         label.setPreferredSize(new Dimension(COLUMN_WIDTH, 40));
         add(label);
-        add(workCanvas);
+        add(work);
         setPreferredSize(new Dimension(COLUMN_WIDTH * 2, 40));
     }
 
     public void setTask(Task task, String message) {
         this.task = task;
         label.setText(message);
-    }
-
-
-    private class WorkCanvas extends JPanel {
-
-
-        public WorkCanvas() {
-            setBorder(BorderFactory.createLineBorder(Color.black));
-            setPreferredSize(new Dimension(COLUMN_WIDTH, TASK_HEIGHT));
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (task != null) {
-                g.setColor(TASK_COLORS[task.getTaskId() % TASK_COLORS.length]);
-                //g.drawRect(task.getStart(), 0, task.getWidth(), TASK_HEIGHT);
-                g.drawString(task.getStart() + "-" + (task.getStart() + task.getWidth()),  task.getStart(), 0);
-            }
+        if (task!=null) {
+            work.setText(task.getStart() + "-" + (task.getStart() + task.getWidth()));
+            work.setForeground(TASK_COLORS[task.getTaskId() % TASK_COLORS.length]);
+        } else {
+            work.setText("");
         }
     }
+
 }
