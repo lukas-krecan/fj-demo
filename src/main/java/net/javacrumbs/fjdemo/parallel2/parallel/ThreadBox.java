@@ -57,7 +57,8 @@ public class ThreadBox extends JPanel {
             super.paintComponent(g);
             if (task != null) {
                 g.setColor(TASK_COLORS[task.getTaskId() % TASK_COLORS.length]);
-                g.drawRect(task.getStart(), 0, task.getWidth(), TASK_HEIGHT);
+                //g.drawRect(task.getStart(), 0, task.getWidth(), TASK_HEIGHT);
+                g.drawString(task.getStart() + "-" + (task.getStart() + task.getWidth()),  task.getStart(), 0);
             }
         }
     }

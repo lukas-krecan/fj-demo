@@ -58,8 +58,11 @@ public class PSDemo {
         frame.setSize(1024, 640);
         frame.setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout());
+        JPanel verticalPanel = new JPanel();
+        verticalPanel.setLayout(new BorderLayout());
+
+        JPanel fjPanel = new JPanel();
+        fjPanel.setLayout(new FlowLayout());
 
         for (int i = 0; i < FJ_THREADS; i++) {
             QueueBox submissionQueue = new QueueBox();
@@ -68,12 +71,17 @@ public class PSDemo {
             queueBoxes[i * 2 + 1] = workerQueue;
             ThreadBox threadBox = new ThreadBox();
             fjThreadBoxes[i] = threadBox;
-            panel.add(new WorkerBox(threadBox, submissionQueue, workerQueue, "Worker " + (i + 1)));
-        }
-        for (int i = 0; i < EX_THREADS; i++) {
-            exThreadBoxes[i] = new ThreadBox();
+            fjPanel.add(new WorkerBox(threadBox, submissionQueue, workerQueue, "Worker " + (i + 1)));
         }
 
+        JPanel exPanel = new JPanel();
+        exPanel.setLayout(new FlowLayout());
+
+        for (int i = 0; i < EX_THREADS; i++) {
+            ThreadBox threadBox = new ThreadBox();
+            exThreadBoxes[i] = threadBox;
+            exPanel.add(threadBox);
+        }
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BorderLayout());
@@ -82,7 +90,10 @@ public class PSDemo {
         startButton.addActionListener(e -> executor.execute(this::runCalculation));
         buttonPanel.add(startButton);
 
-        frame.add(panel, BorderLayout.CENTER);
+        verticalPanel.add(fjPanel, BorderLayout.CENTER);
+        verticalPanel.add(exPanel, BorderLayout.SOUTH);
+
+        frame.add(verticalPanel, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
