@@ -41,7 +41,7 @@ public class ThreadBox extends JPanel {
         this.task = task;
         label.setText(message);
         if (task!=null) {
-            work.setText(task.getStart() + "-" + (task.getStart() + task.getWidth()));
+            work.setText(task.getInterval());
             work.setForeground(TASK_COLORS[task.getTaskId() % TASK_COLORS.length]);
         } else {
             work.setText("");

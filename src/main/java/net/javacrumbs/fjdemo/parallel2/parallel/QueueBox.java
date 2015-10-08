@@ -66,7 +66,7 @@ public class QueueBox extends JPanel {
                 JLabel workLabel = workLabels.get(i);
                 if (tasks.size() > i) {
                     Task task = tasks.get(i);
-                    workLabel.setText(task.getStart() + "-" + (task.getStart() + task.getWidth()));
+                    workLabel.setText(task.getInterval());
                     workLabel.setForeground(TASK_COLORS[task.getTaskId() % TASK_COLORS.length]);
                 } else {
                     workLabel.setText("");

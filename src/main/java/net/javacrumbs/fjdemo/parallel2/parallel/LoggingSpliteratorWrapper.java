@@ -108,14 +108,15 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
         }
     }
 
-    @Override
-    public int getWidth() {
-        return (int) (wrapped.estimateSize() / SCALE);
-    }
 
     @Override
     public String getIdentifier() {
         return taskId + "[" + from + ".." + (from + estimateSize()) + "]";
+    }
+
+    @Override
+    public String getInterval() {
+        return from + "-" + (from + estimateSize());
     }
 
     @Override
@@ -131,8 +132,7 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
         return ownerThread;
     }
 
-    @Override
-    public int getStart() {
-        return from / SCALE;
-    }
+
 }
+
+
