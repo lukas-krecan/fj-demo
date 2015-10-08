@@ -25,6 +25,7 @@ import static java.util.Objects.requireNonNull;
 public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
     public static final String CREATED = "created";
     public static final String FOR_EACH_REMAINING = "forEachRemaining";
+    public static final String FOR_EACH_REMAINING_END = "forEachRemainingEnd";
     public static final String STOLEN = "stolen";
     public static final String SPLIT = "split";
     public static final int SCALE = 10;
@@ -53,11 +54,12 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
     public void forEachRemaining(Consumer<? super T> action) {
         logAndSleep(FOR_EACH_REMAINING);
         wrapped.forEachRemaining(action);
+        logAndSleep(FOR_EACH_REMAINING_END);
     }
 
     @Override
     public Spliterator<T> trySplit() {
-        log(SPLIT);
+        logAndSleep(SPLIT);
         return createNewInstance(wrapped.trySplit(), taskId, from + (int) estimateSize());
     }
 
@@ -90,7 +92,8 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
     }
 
     protected void log(String message) {
-        System.out.println(getThreadName() + " " + getIdentifier() + " " + (parentTask != null ? parentTask.getIdentifier() : "x") + " " + wrapped.estimateSize() + " " + message);
+//        System.out.println(getThreadName() + " " + getIdentifier() + " " + (parentTask != null ? parentTask.getIdentifier() : "x") + " " + wrapped.estimateSize() + " " + message);
+        System.out.println(getThreadName() + " " + getIdentifier() + " " + message);
     }
 
     protected String getThreadName() {

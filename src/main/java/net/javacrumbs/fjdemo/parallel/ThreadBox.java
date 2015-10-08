@@ -55,6 +55,9 @@ public class ThreadBox extends JPanel {
         }
     }
 
+    public void highlightTask(Task task) {
+    }
+
     private class ThreadCanvas extends JPanel {
         private static final int WIDTH = 100;
         private static final int HEIGHT = 300;
