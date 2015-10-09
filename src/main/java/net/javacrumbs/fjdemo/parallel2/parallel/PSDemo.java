@@ -41,6 +41,10 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
 
 public class PSDemo {
+    static {
+        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "4");
+    }
+
     private static int FJ_THREADS = 4;
     private static int EX_THREADS = 4;
 
