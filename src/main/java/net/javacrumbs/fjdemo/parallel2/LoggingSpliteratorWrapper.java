@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.javacrumbs.fjdemo.parallel;
+package net.javacrumbs.fjdemo.parallel2;
 
 import java.util.Comparator;
 import java.util.Spliterator;
@@ -24,7 +24,7 @@ import static java.util.Objects.requireNonNull;
 
 public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
     public static final String CREATED = "created";
-    public static final String FOR_EACH_REMAINING = "forEachRemaining";
+    public static final String FOR_EACH_REMAINING = "processing";
     public static final String FOR_EACH_REMAINING_END = "forEachRemainingEnd";
     public static final String STOLEN = "stolen";
     public static final String SPLIT = "split";
@@ -102,20 +102,21 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
 
     private void sleep() {
         try {
-            Thread.sleep(500L);
+            Thread.sleep(1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    public int getWidth() {
-        return (int) (wrapped.estimateSize() / SCALE);
-    }
 
     @Override
     public String getIdentifier() {
         return taskId + "[" + from + ".." + (from + estimateSize()) + "]";
+    }
+
+    @Override
+    public String getInterval() {
+        return from + "-" + (from + estimateSize());
     }
 
     @Override
@@ -131,8 +132,7 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
         return ownerThread;
     }
 
-    @Override
-    public int getStart() {
-        return from / SCALE;
-    }
+
 }
+
+

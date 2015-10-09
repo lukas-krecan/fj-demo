@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.javacrumbs.fjdemo.parallel2.parallel;
+package net.javacrumbs.fjdemo.parallel2;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collections;
-import java.util.List;
 
 public class WorkerBox extends JPanel {
-    public WorkerBox(ThreadBox threadBox, QueueBox submission, QueueBox work, String name) {
-        setLayout(new BorderLayout());
-        add(threadBox, BorderLayout.NORTH);
+    public WorkerBox(ThreadBox threadBox, QueueBox submission, QueueBox work) {
+        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+
         JPanel queues = new JPanel();
         queues.setLayout(new FlowLayout());
         queues.add(submission);
         queues.add(work);
-        add(queues, BorderLayout.CENTER);
-        add(new JLabel(name), BorderLayout.SOUTH);
+
+        add(threadBox);
+        add(queues);
+        add(Box.createVerticalGlue());
+
     }
 }

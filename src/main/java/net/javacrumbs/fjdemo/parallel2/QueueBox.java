@@ -13,30 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.javacrumbs.fjdemo.parallel2.parallel;
+package net.javacrumbs.fjdemo.parallel2;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import static java.util.stream.IntStream.range;
+import static net.javacrumbs.fjdemo.parallel2.Const.COLUMN_HEIGHT;
+import static net.javacrumbs.fjdemo.parallel2.Const.COLUMN_WIDTH;
+import static net.javacrumbs.fjdemo.parallel2.Const.TASK_COLORS;
+import static net.javacrumbs.fjdemo.parallel2.Const.label;
 
 public class QueueBox extends JPanel {
-    static final Color[] TASK_COLORS = new Color[]{
-        Color.BLACK,
-        Color.RED,
-        Color.BLUE,
-        Color.MAGENTA,
-    };
 
     private final QueuePanel queuePanel;
 
-    public QueueBox() {
+    public QueueBox(String label) {
         setLayout(new BorderLayout());
         queuePanel = new QueuePanel();
         add(queuePanel, BorderLayout.CENTER);
+        add(label(label), BorderLayout.SOUTH);
     }
 
     public void setTasks(List<Task> tasks) {
@@ -45,17 +43,15 @@ public class QueueBox extends JPanel {
 
 
     private class QueuePanel extends JPanel {
-        private static final int WIDTH = 100;
-        private static final int HEIGHT = 300;
         private final List<JLabel> workLabels;
 
         public QueuePanel() {
             setBorder(BorderFactory.createLineBorder(Color.black));
-            setPreferredSize(new Dimension(WIDTH, HEIGHT));
+            setPreferredSize(new Dimension(COLUMN_WIDTH, COLUMN_HEIGHT));
             setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
             workLabels = new LinkedList<>();
             range(0, 10).forEach(i -> {
-                JLabel workLabel = new JLabel();
+                JLabel workLabel = label("");
                 workLabels.add(0,workLabel);
                 add(workLabel);
             });

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.javacrumbs.fjdemo.parallel2.parallel;
+package net.javacrumbs.fjdemo.parallel2;
 
 
 import javax.swing.*;
@@ -39,6 +39,7 @@ import static java.lang.Thread.currentThread;
 import static java.util.stream.Collectors.maxBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
+import static net.javacrumbs.fjdemo.parallel2.Const.label;
 
 public class PSDemo {
     static {
@@ -46,7 +47,7 @@ public class PSDemo {
     }
 
     private static int FJ_THREADS = 4;
-    private static int EX_THREADS = 4;
+    private static int EX_THREADS = 10;
 
     private final QueueBox[] queueBoxes = new QueueBox[FJ_THREADS * 2];
     private final ThreadBox[] fjThreadBoxes = new ThreadBox[FJ_THREADS];
@@ -59,32 +60,29 @@ public class PSDemo {
 
     private void start() {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(1024, 640);
+        frame.setSize(1300, 450);
         frame.setLayout(new BorderLayout());
 
-        JPanel verticalPanel = new JPanel();
-        verticalPanel.setLayout(new BorderLayout());
+        JPanel threadPanel = new JPanel();
+        threadPanel.setLayout(new BoxLayout(threadPanel, BoxLayout.PAGE_AXIS));
 
-        JPanel fjPanel = new JPanel();
-        fjPanel.setLayout(new FlowLayout());
+        Box fjPanel = Box.createHorizontalBox();
 
         for (int i = 0; i < FJ_THREADS; i++) {
-            QueueBox submissionQueue = new QueueBox();
+            QueueBox submissionQueue = new QueueBox("submission");
             queueBoxes[i * 2] = submissionQueue;
-            QueueBox workerQueue = new QueueBox();
+            QueueBox workerQueue = new QueueBox("worker");
             queueBoxes[i * 2 + 1] = workerQueue;
-            ThreadBox threadBox = new ThreadBox();
+            ThreadBox threadBox = new ThreadBox(null, FlowLayout.CENTER);
             fjThreadBoxes[i] = threadBox;
-            fjPanel.add(new WorkerBox(threadBox, submissionQueue, workerQueue, "Worker " + (i + 1)));
+            fjPanel.add(new WorkerBox(threadBox, submissionQueue, workerQueue));
         }
 
-        JPanel exPanel = new JPanel();
-        exPanel.setLayout(new FlowLayout());
-
         for (int i = 0; i < EX_THREADS; i++) {
-            ThreadBox threadBox = new ThreadBox();
+            JLabel caption = label("Thread " + (i + 1) + ": ");
+            ThreadBox threadBox = new ThreadBox(caption, FlowLayout.LEADING);
             exThreadBoxes[i] = threadBox;
-            exPanel.add(threadBox);
+            threadPanel.add(threadBox);
         }
 
         JPanel buttonPanel = new JPanel();
@@ -94,15 +92,13 @@ public class PSDemo {
         startButton.addActionListener(e -> executor.execute(this::runCalculation));
         buttonPanel.add(startButton);
 
-        verticalPanel.add(fjPanel, BorderLayout.CENTER);
-        verticalPanel.add(exPanel, BorderLayout.SOUTH);
 
-        frame.add(verticalPanel, BorderLayout.CENTER);
+        frame.add(threadPanel, BorderLayout.WEST);
+        frame.add(fjPanel, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
     }
-
     private void runCalculation() {
         Stream<Integer> stream = StreamSupport.stream(new SwingLoggingSpliteratorWrapper<>(range(0, 1000).spliterator(), taskIdGenerator.getAndIncrement(), 0, null), true);
 

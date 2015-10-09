@@ -13,39 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.javacrumbs.fjdemo.parallel2.parallel;
+package net.javacrumbs.fjdemo.parallel2;
 
 import javax.swing.*;
 import java.awt.*;
 
-import static net.javacrumbs.fjdemo.parallel2.parallel.QueueBox.TASK_COLORS;
+import static net.javacrumbs.fjdemo.parallel2.Const.TASK_COLORS;
+import static net.javacrumbs.fjdemo.parallel2.Const.label;
 
 public class ThreadBox extends JPanel {
     private final JLabel work;
     private final JLabel label;
-    private Task task;
-    private static final int COLUMN_WIDTH = 100;
-    private static final int TASK_HEIGHT = 10;
 
-    public ThreadBox() {
-        setLayout(new FlowLayout(FlowLayout.CENTER));
-        work = new JLabel();
-        label = new JLabel();
-        label.setPreferredSize(new Dimension(COLUMN_WIDTH, 40));
+    public ThreadBox(JLabel caption, int align) {
+        setLayout(new FlowLayout(align));
+        work = label("");
+        label = label("");
+        label.setPreferredSize(new Dimension(Const.COLUMN_WIDTH, 40));
+        if (caption != null) {
+            add(caption);
+        }
         add(label);
         add(work);
-        setPreferredSize(new Dimension(COLUMN_WIDTH * 2, 40));
+        setPreferredSize(new Dimension(Const.COLUMN_WIDTH * 3, 40));
     }
 
     public void setTask(Task task, String message) {
-        this.task = task;
         label.setText(message);
-        if (task!=null) {
+        if (task != null) {
             work.setText(task.getInterval());
             work.setForeground(TASK_COLORS[task.getTaskId() % TASK_COLORS.length]);
         } else {
             work.setText("");
         }
     }
-
 }
