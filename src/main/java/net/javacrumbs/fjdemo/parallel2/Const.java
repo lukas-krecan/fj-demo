@@ -30,9 +30,14 @@ public class Const {
     }
 
     static final Color[] TASK_COLORS = new Color[]{
-        Color.BLACK,
-        Color.RED,
         Color.BLUE,
+        Color.GREEN,
+        Color.RED,
+        new Color(112,78,212),
         Color.MAGENTA,
+        new Color(76, 160, 255),
+        new Color(212, 146, 52),
+        new Color(134, 219, 52),
+        Color.GRAY
     };
 }
