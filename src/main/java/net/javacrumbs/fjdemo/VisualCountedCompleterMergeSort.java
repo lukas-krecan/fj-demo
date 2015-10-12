@@ -16,10 +16,8 @@ package net.javacrumbs.fjdemo;
 
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.CountedCompleter;
 import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.RecursiveAction;
 
 import javax.swing.*;
 
@@ -35,8 +33,8 @@ public class VisualCountedCompleterMergeSort extends AbstractVisualForkJoinMerge
         private final int row;
         private final int col;
         private final JLabel label;
-        private SortTask taskA;
-        private SortTask taskB;
+        private SortTask taskLeft;
+        private SortTask taskRight;
 
         public SortTask(SortTask completer, int[] numbers, int row, int col) {
             super(completer);
@@ -52,28 +50,24 @@ public class VisualCountedCompleterMergeSort extends AbstractVisualForkJoinMerge
             setLabelColor(label, threadColor());
             switch (numbers.length) {
                 case 1:
-                    finishTask();
+                    taskFinished();
                     tryComplete();
                     return;
                 case 2:
-                    if (numbers[0] > numbers[1]) {
-                        int tmp = numbers[0];
-                        numbers[0] = numbers[1];
-                        numbers[1] = tmp;
-                    }
-                    finishTask();
+                    swapIfNeeded(numbers);
+                    taskFinished();
                     tryComplete();
                     return;
                 default:
-                    Map<Integer, int[]> split = split(numbers);
-                    int[] a = split.get(0);
-                    int[] b = split.get(1);
+                    // not sorting in place as we should to make implementation more simple
+                    int[] left = getLeftHalf(numbers);
+                    int[] right = getRightHalf(numbers);
                     setLabelColor(label, COLOR_WAIT);
                     setPendingCount(1);
-                    taskA = new SortTask(this, a, row + 1, col);
-                    taskB = new SortTask(this, b, row + 1, col + a.length);
-                    taskB.fork();
-                    taskA.compute();
+                    taskLeft = new SortTask(this, left, row + 1, col);
+                    taskRight = new SortTask(this, right, row + 1, col + left.length);
+                    taskRight.fork();
+                    taskLeft.compute();
             }
         }
 
@@ -81,8 +75,8 @@ public class VisualCountedCompleterMergeSort extends AbstractVisualForkJoinMerge
         @Override
         public void onCompletion(CountedCompleter<?> caller) {
             if (caller != this) {
-                merge(label, taskA.numbers, taskB.numbers, numbers);
-                finishTask();
+                merge(label, taskLeft.numbers, taskRight.numbers, numbers);
+                taskFinished();
             }
         }
 
@@ -91,7 +85,7 @@ public class VisualCountedCompleterMergeSort extends AbstractVisualForkJoinMerge
          *
          * @return
          */
-        private void finishTask() {
+        private void taskFinished() {
             threadSafe(() -> {
                 label.setText(Arrays.toString(numbers));
                 label.setBackground(COLOR_FINISHED);

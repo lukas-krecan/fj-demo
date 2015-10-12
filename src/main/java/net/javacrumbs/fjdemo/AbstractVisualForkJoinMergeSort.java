@@ -175,13 +175,23 @@ public abstract class AbstractVisualForkJoinMergeSort {
     /**
      * Splits a list of numbers in half
      */
-    protected Map<Integer, int[]> split(int[] list) {
+    protected int[] getLeftHalf(int[] list) {
+        int middleIndex = getMiddleIndex(list);
+        return Arrays.copyOf(list, middleIndex);
+    }
+
+    /**
+     * Splits a list of numbers in half
+     */
+    protected int[] getRightHalf(int[] list) {
+        int middleIndex = getMiddleIndex(list);
+        return Arrays.copyOfRange(list, middleIndex, list.length);
+    }
+
+
+    private int getMiddleIndex(int[] list) {
         int listSize = list.length;
-        int middleIndex = listSize / 2;
-        Map<Integer, int[]> result = new HashMap<>();
-        result.put(0, Arrays.copyOf(list, middleIndex));
-        result.put(1, Arrays.copyOfRange(list, middleIndex, list.length));
-        return result;
+        return listSize / 2;
     }
 
     /**
@@ -210,6 +220,14 @@ public abstract class AbstractVisualForkJoinMergeSort {
             }
         }
         return result;
+    }
+
+    protected void swapIfNeeded(int[] numbers) {
+        if (numbers[0] > numbers[1]) {
+            int tmp = numbers[0];
+            numbers[0] = numbers[1];
+            numbers[1] = tmp;
+        }
     }
 
     /**

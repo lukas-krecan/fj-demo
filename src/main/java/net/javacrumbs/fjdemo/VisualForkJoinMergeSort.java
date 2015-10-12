@@ -17,9 +17,7 @@ package net.javacrumbs.fjdemo;
 
 import javax.swing.*;
 
-import java.awt.*;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
@@ -58,28 +56,24 @@ public class VisualForkJoinMergeSort extends AbstractVisualForkJoinMergeSort {
             setLabelColor(label, threadColor());
             switch (numbers.length) {
                 case 1:
-                    finishTask();
+                    taskFinished();
                     return;
                 case 2:
-                    if (numbers[0] > numbers[1]) {
-                        int tmp = numbers[0];
-                        numbers[0] = numbers[1];
-                        numbers[1] = tmp;
-                    }
-                    finishTask();
+                    swapIfNeeded(numbers);
+                    taskFinished();
                     return;
                 default:
-                    Map<Integer, int[]> split = split(numbers);
-                    int[] a = split.get(0);
-                    int[] b = split.get(1);
+                    // not sorting in place as we should to make implementation more simple
+                    int[] left = getLeftHalf(numbers);
+                    int[] right = getRightHalf(numbers);
                     setLabelColor(label, COLOR_WAIT);
-                    SortTask taskA = new SortTask(a, row + 1, col);
-                    SortTask taskB = new SortTask(b, row + 1, col + a.length);
-                    taskB.fork();
-                    taskA.compute();
-                    taskB.join();
-                    merge(label, a, b, numbers);
-                    finishTask();
+                    SortTask taskLeft = new SortTask(left, row + 1, col);
+                    SortTask taskRight = new SortTask(right, row + 1, col + left.length);
+                    taskRight.fork();
+                    taskLeft.compute();
+                    taskRight.join();
+                    merge(label, left, right, numbers);
+                    taskFinished();
             }
         }
 
@@ -88,7 +82,7 @@ public class VisualForkJoinMergeSort extends AbstractVisualForkJoinMergeSort {
          *
          * @return
          */
-        private void finishTask() {
+        private void taskFinished() {
             threadSafe(() -> {
                 label.setText(Arrays.toString(numbers));
                 label.setBackground(COLOR_FINISHED);
