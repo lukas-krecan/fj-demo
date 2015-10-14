@@ -126,6 +126,9 @@ public class PSDemo {
             if (FOR_EACH_REMAINING_END.equals(message)) {
                 threadSafe(() -> currentThreadBox.setTask(null, ""));
             }
+            if (STOLEN.equals(message) && !isFJThread(currentThread)) {
+                System.out.println("Ha");
+            }
             logQueues();
         }
 
