@@ -15,27 +15,17 @@
  */
 package net.javacrumbs.fjdemo.parallel2;
 
-import javax.swing.*;
-import java.awt.*;
-
 import static net.javacrumbs.fjdemo.parallel2.Const.TASK_COLORS;
-import static net.javacrumbs.fjdemo.parallel2.Const.label;
 
-public class ThreadBox extends JPanel {
+import javax.swing.*;
+
+public class ThreadBox {
     private final JLabel work;
     private final JLabel label;
 
-    public ThreadBox(JLabel caption, int align) {
-        setLayout(new FlowLayout(align));
-        work = label("");
-        label = label("");
-        label.setPreferredSize(new Dimension(Const.COLUMN_WIDTH, 40));
-        if (caption != null) {
-            add(caption);
-        }
-        add(label);
-        add(work);
-        setPreferredSize(new Dimension(Const.COLUMN_WIDTH * 3, 40));
+    public ThreadBox(JLabel work, JLabel label) {
+        this.work = work;
+        this.label = label;
     }
 
     public void setTask(Task task, String message) {

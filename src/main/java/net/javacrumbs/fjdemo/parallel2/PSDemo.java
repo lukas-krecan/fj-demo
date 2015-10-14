@@ -63,26 +63,38 @@ public class PSDemo {
         frame.setSize(1300, 450);
         frame.setLayout(new BorderLayout());
 
-        JPanel threadPanel = new JPanel();
-        threadPanel.setLayout(new BoxLayout(threadPanel, BoxLayout.PAGE_AXIS));
-
-        Box fjPanel = Box.createHorizontalBox();
-
-        for (int i = 0; i < FJ_THREADS; i++) {
-            QueueBox submissionQueue = new QueueBox("submission");
-            queueBoxes[i * 2] = submissionQueue;
-            QueueBox workerQueue = new QueueBox("worker");
-            queueBoxes[i * 2 + 1] = workerQueue;
-            ThreadBox threadBox = new ThreadBox(null, FlowLayout.CENTER);
-            fjThreadBoxes[i] = threadBox;
-            fjPanel.add(new WorkerBox(threadBox, submissionQueue, workerQueue));
-        }
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
 
         for (int i = 0; i < EX_THREADS; i++) {
             JLabel caption = label("Thread " + (i + 1) + ": ");
-            ThreadBox threadBox = new ThreadBox(caption, FlowLayout.LEADING);
+            JLabel work = label("");
+            JLabel label = label("");
+            ThreadBox threadBox = new ThreadBox(work, label);
             exThreadBoxes[i] = threadBox;
-            threadPanel.add(threadBox);
+            panel.add(caption, gbc(0, 1 + i));
+            panel.add(work, gbc(1, 1 + i));
+            panel.add(label, gbc(1, 2 + i));
+
+        }
+
+        for (int i = 0; i < FJ_THREADS; i++) {
+            QueueBox submissionQueue = new QueueBox();
+            queueBoxes[i * 2] = submissionQueue;
+            QueueBox workerQueue = new QueueBox();
+            queueBoxes[i * 2 + 1] = workerQueue;
+
+            JLabel work = label("");
+            JLabel label = label("");
+            ThreadBox threadBox = new ThreadBox(work, label);
+            fjThreadBoxes[i] = threadBox;
+
+            panel.add(submissionQueue, gbc(2, 1 + i));
+            panel.add(label("Worker"), gbc(3 + i, 0));
+            panel.add(work, gbc(3+i, 1));
+            panel.add(label, gbc(3+i, 2));
+            panel.add(workerQueue, gbc(3+i, 3));
+
         }
 
         JPanel buttonPanel = new JPanel();
@@ -93,12 +105,21 @@ public class PSDemo {
         buttonPanel.add(startButton);
 
 
-        frame.add(threadPanel, BorderLayout.WEST);
-        frame.add(fjPanel, BorderLayout.CENTER);
-        frame.add(buttonPanel, BorderLayout.SOUTH);
+
+        frame.add(panel, BorderLayout.CENTER);
+        frame.add(startButton, BorderLayout.SOUTH);
+
 
         frame.setVisible(true);
     }
+
+    private static GridBagConstraints gbc(int x, int y) {
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = x;
+        c.gridy = y;
+        return c;
+    }
+
     private void runCalculation() {
         Stream<Integer> stream = StreamSupport.stream(new SwingLoggingSpliteratorWrapper<>(range(0, 1000).spliterator(), taskIdGenerator.getAndIncrement(), 0, null), true);
 
@@ -125,9 +146,6 @@ public class PSDemo {
             }
             if (FOR_EACH_REMAINING_END.equals(message)) {
                 threadSafe(() -> currentThreadBox.setTask(null, ""));
-            }
-            if (STOLEN.equals(message) && !isFJThread(currentThread)) {
-                System.out.println("Ha");
             }
             logQueues();
         }
