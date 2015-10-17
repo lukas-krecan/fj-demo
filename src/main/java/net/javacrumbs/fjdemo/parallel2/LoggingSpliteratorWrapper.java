@@ -24,11 +24,10 @@ import static java.util.Objects.requireNonNull;
 
 public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
     public static final String CREATED = "created";
-    public static final String FOR_EACH_REMAINING = "processing";
+    public static final String FOR_EACH_REMAINING = "process";
     public static final String FOR_EACH_REMAINING_END = "forEachRemainingEnd";
     public static final String STOLEN = "stolen";
     public static final String SPLIT = "split";
-    public static final int SCALE = 10;
     private final Spliterator<T> wrapped;
     private final int taskId;
     private final int from;
@@ -82,7 +81,7 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
         return wrapped.characteristics();
     }
 
-    private void logAndSleep(String message) {
+    public void logAndSleep(String message) {
         if (currentThread() != getOwnerThread()) {
             log(STOLEN);
             ownerThread = currentThread();
@@ -100,7 +99,7 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
         return currentThread().getName();
     }
 
-    private void sleep() {
+    static void sleep() {
         try {
             Thread.sleep(1000L);
         } catch (InterruptedException e) {
