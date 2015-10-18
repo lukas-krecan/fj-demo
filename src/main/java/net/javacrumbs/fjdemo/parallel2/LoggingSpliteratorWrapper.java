@@ -110,7 +110,7 @@ public class LoggingSpliteratorWrapper<T> implements Spliterator<T>, Task {
 
     @Override
     public String getIdentifier() {
-        return taskId + "[" + from + ".." + (from + estimateSize()) + "]";
+        return taskId + "[" + getInterval() + "]";
     }
 
     @Override

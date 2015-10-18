@@ -29,13 +29,13 @@ public class ThreadBox extends JPanel {
         setLayout(new FlowLayout(align));
         work = label("");
         label = label("");
-        label.setPreferredSize(new Dimension(Const.COLUMN_WIDTH, 40));
+        label.setPreferredSize(new Dimension(80, 40));
         if (caption != null) {
             add(caption);
         }
         add(label);
         add(work);
-        setPreferredSize(new Dimension(Const.COLUMN_WIDTH * 3, 40));
+        setPreferredSize(new Dimension(Const.COLUMN_WIDTH * 3 + 50, 40));
     }
 
     public void setTask(Task task, String message) {

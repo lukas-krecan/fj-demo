@@ -23,7 +23,6 @@ import static net.javacrumbs.fjdemo.parallel2.Const.label;
 import static net.javacrumbs.fjdemo.parallel2.LoggingSpliteratorWrapper.FOR_EACH_REMAINING;
 import static net.javacrumbs.fjdemo.parallel2.LoggingSpliteratorWrapper.FOR_EACH_REMAINING_END;
 import static net.javacrumbs.fjdemo.parallel2.LoggingSpliteratorWrapper.SPLIT;
-import static net.javacrumbs.fjdemo.parallel2.LoggingSpliteratorWrapper.STOLEN;
 import static net.javacrumbs.fjdemo.parallel2.LoggingSpliteratorWrapper.sleep;
 
 import java.awt.*;
@@ -41,7 +40,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -120,7 +118,7 @@ public class PSDemo {
     /**
      * Assumes sorted numbers on input.
      */
-    private static class NumberCollector implements Task {
+    private static class NumberCollector {
         private final int taskId;
         private final BiConsumer<String, Task> logger;
         private Integer from;
@@ -139,26 +137,26 @@ public class PSDemo {
         }
 
         private void combine(NumberCollector other) {
+            logger.accept(MERGE, new Task() {
+                @Override
+                public String getIdentifier() {
+                    return taskId + "[" + getInterval() + "]";
+                }
+
+                @Override
+                public String getInterval() {
+                    return from + "-" + (to + 1) + "-" + (other.to + 1);
+                }
+
+                @Override
+                public int getTaskId() {
+                    return taskId;
+                }
+            });
             from = Math.min(from, other.from);
             to = Math.max(to, other.to);
-            logger.accept(MERGE, this);
             sleep();
-            logger.accept(MERGE_FINISHED, this);
-        }
-
-        @Override
-        public String getIdentifier() {
-            return taskId + "[" + from + ".." + (to + 1) + "]";
-        }
-
-        @Override
-        public String getInterval() {
-            return from + "-" + (to + 1);
-        }
-
-        @Override
-        public int getTaskId() {
-            return taskId;
+            logger.accept(MERGE_FINISHED, null);
         }
     }
 
